@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+.DS_Store
+**/.DS_Store
+*.log
+**/upload/
+**/uploads/
+**/export/
+**/logs/*.log
+**/output/
+**/input/
+**/log/*.log
+.idea
+.python-version
+app/diccionario.txt
+app/kw.csv
+app/kw_reverse.csv
