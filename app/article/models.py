@@ -1,6 +1,4 @@
-from django.db import models
 from django.conf import settings
-from django.utils.translation import gettext as _
 import time
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -79,7 +77,7 @@ class Tag(UserBy, DatesAt):
 
 
 class Article(SEOAttributes, UserBy, DatesAt):
-    """ Representan los artículos sobre ofertas de trabajo de la web
+    """ Representan los artículos sobre palabras en la web
     """
     title = models.CharField(max_length=100, verbose_name=_('Titulo'))
     content = RichTextField(max_length=9999, verbose_name=_('Contenido'))
@@ -93,35 +91,14 @@ class Article(SEOAttributes, UserBy, DatesAt):
         return _('{}'.format(self.title))
 
     class Meta:
-        verbose_name = _('Oferta')
-        verbose_name_plural = _('Ofertas')
+        verbose_name = _('Articulo')
+        verbose_name_plural = _('Articulos')
 
     def save(self, *args, **kwargs):
         if not self.id:
             # Only set the slug when the object is created.
             self.slug = slugify(self.title + " " + str(time.time()).split('.')[0])
         super(Article, self).save(*args, **kwargs)
-
-
-class Page(SEOAttributes, UserBy, DatesAt):
-    """ Representa una página del sitio
-    """
-    title = models.CharField(max_length=100, verbose_name=_('Titulo'))
-    content = RichTextField(max_length=50000, verbose_name=_('Contenido'))
-    published = models.BooleanField(default=False, verbose_name=_('Publicada'))
-
-    def __str__(self):
-        return _('{}'.format(self.slug))
-
-    class Meta:
-        verbose_name = _('Página')
-        verbose_name_plural = _('Páginas')
-
-    def save(self, *args, **kwargs):
-        if not self.id:
-            # Only set the slug when the object is created.
-            self.slug = slugify(self.title + " " + str(time.time()).split('.')[0])
-        super(Page, self).save(*args, **kwargs)
 
 
 class MenuItem(models.Model):
@@ -137,9 +114,6 @@ class MenuItem(models.Model):
 
     def is_post(self):
         return self.item and self.object_type.model_class() is Article
-
-    def is_page(self):
-        return self.item and self.object_type.model_class() is Page
 
     def is_link(self):
         return not self.item and self.link
