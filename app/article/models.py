@@ -83,7 +83,8 @@ class Article(SEOAttributes, UserBy, DatesAt):
     content = RichTextField(max_length=9999, verbose_name=_('Contenido'))
     tags = models.ManyToManyField(Tag)
     published = models.BooleanField(default=False, verbose_name=_('Publicada'), help_text=_('Para hacerla visible públicamente'))
-
+    is_relevant = models.BooleanField(default=False, verbose_name=_('Relevante'), help_text=_('Para referenciar su enlace dentro de otros artículos'))
+    
     def main_category(self):
         return self.tags.filter(is_category=True).first()
 
