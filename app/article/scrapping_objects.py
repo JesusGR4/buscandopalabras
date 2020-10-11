@@ -1,19 +1,47 @@
-from urllib import request
+from urllib import request, parse
 from bs4 import BeautifulSoup
 import re
+from googletrans import Translator
+
+
 class WordReference(object):
     synonymous_url = "https://www.wordreference.com/sinonimos/"
 
     def get_synonymous(self, word):
-        url = self.synonymous_url + "%s" % word
+        word_encoded = parse.quote(word)
+        url = self.synonymous_url + "%s" % word_encoded
+        req = request.Request(url=url, headers={
+            'User-Agent': ' Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0'})
+        handler = request.urlopen(req)
 
+class Translation(object):
+    languages = {
+        'fr': 'Francés',
+        'it': 'Italiano',
+        'en': 'Inglés',
+        'pt': 'Portugués'
+    }
+
+    def get_translations_from_word(self, word):
+        translator = Translator(service_urls=[
+            'translate.google.es'])
+        translation_array = []
+
+        for language_code in self.languages:
+            language_value = self.languages.get(language_code)
+            translation = translator.translate(word, src='es', dest=language_code)
+            translate_text = translation.text
+            translation_array.append("La palabra %s se escribe en %s -> %s" % (word, language_value, translate_text))
+
+        return '\n'.join(translation_array)
 
 class Rae(object):
     rae_url = "https://dle.rae.es/"
 
     def get_word_definition(self, word):
-        url = self.rae_url + "%s" % word
-        req = request.Request(url=url   , headers={
+        word_encoded = parse.quote(word)
+        url = self.rae_url + "%s" % word_encoded
+        req = request.Request(url=url, headers={
             'User-Agent': ' Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0'})
         handler = request.urlopen(req)
         http_code = handler.code
