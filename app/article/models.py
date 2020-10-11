@@ -60,7 +60,7 @@ class Tag(UserBy, DatesAt):
     """
     name = models.CharField(verbose_name=_('Nombre'), max_length=50)
     slug = models.CharField(verbose_name=_('Slug'), max_length=50, blank=True, unique=True)
-    description = RichTextField(max_length=9999, verbose_name=_('Contenido'),  blank=True, null=True)
+    description = RichTextField(max_length=9999, verbose_name=_('Contenido'), blank=True, null=True)
     is_category = models.BooleanField(verbose_name=_('Es categoría?'), default=False)
 
     def __str__(self):
@@ -76,13 +76,35 @@ class Tag(UserBy, DatesAt):
         super(Tag, self).save(*args, **kwargs)
 
 
+class Page(SEOAttributes, UserBy, DatesAt):
+    """ Representa una página del sitio
+    """
+    title = models.CharField(max_length=100, verbose_name=_('Titulo'))
+    content = RichTextField(max_length=50000, verbose_name=_('Contenido'))
+    published = models.BooleanField(default=False, verbose_name=_('Publicada'))
+
+    def __str__(self):
+        return _('{}'.format(self.slug))
+
+    class Meta:
+        verbose_name = _('Página')
+        verbose_name_plural = _('Páginas')
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            # Only set the slug when the object is created.
+            self.slug = slugify(self.title + " " + str(time.time()).split('.')[0])
+        super(Page, self).save(*args, **kwargs)
+
+
 class Article(SEOAttributes, UserBy, DatesAt):
     """ Representan los artículos sobre palabras en la web
     """
     title = models.CharField(max_length=100, verbose_name=_('Titulo'))
     content = RichTextField(max_length=9999, verbose_name=_('Contenido'))
     tags = models.ManyToManyField(Tag)
-    published = models.BooleanField(default=False, verbose_name=_('Publicada'), help_text=_('Para hacerla visible públicamente'))
+    published = models.BooleanField(default=False, verbose_name=_('Publicada'),
+                                    help_text=_('Para hacerla visible públicamente'))
     is_relevant = models.BooleanField(default=False, verbose_name=_('Relevante'),
                                       help_text=_('Para referenciar su enlace dentro de otros artículos'))
     is_reviewed = models.BooleanField(default=False, verbose_name=_('Relevante'),
@@ -112,7 +134,8 @@ class MenuItem(models.Model):
     title = models.CharField(max_length=100, verbose_name=_('Atributo Title'), blank=True, null=True)
     link = models.CharField(max_length=150, verbose_name=_('Enlace'), blank=True, null=True)
 
-    object_type = models.ForeignKey(ContentType, on_delete=models.PROTECT, verbose_name=_('Tipo de Objeto'), blank=True, null=True)
+    object_type = models.ForeignKey(ContentType, on_delete=models.PROTECT, verbose_name=_('Tipo de Objeto'), blank=True,
+                                    null=True)
     object_id = models.PositiveIntegerField(verbose_name=_('Id de Objeto'), blank=True, null=True)
     item = GenericForeignKey('object_type', 'object_id')
 
@@ -124,6 +147,9 @@ class MenuItem(models.Model):
 
     def __str__(self):
         return _('{}'.format(self.name))
+
+    def is_page(self):
+        return self.item and self.object_type.model_class() is Page
 
     class Meta:
         verbose_name = _('Elemento de Menú')
@@ -144,7 +170,8 @@ class Menu(UserBy, DatesAt):
     }
 
     name = models.CharField(max_length=100, verbose_name=_('Nombre'))
-    placement = models.SmallIntegerField(choices=[(k, v) for k, v in PLACEMENT.items()], blank=True, verbose_name=_('Posición'))
+    placement = models.SmallIntegerField(choices=[(k, v) for k, v in PLACEMENT.items()], blank=True,
+                                         verbose_name=_('Posición'))
     is_active = models.BooleanField(default=False, verbose_name=_('Activado'))
     items = models.ManyToManyField(MenuItem)
 

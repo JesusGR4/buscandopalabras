@@ -14,7 +14,7 @@ conditions = [
 rgx_str = ''.join(['(?=%s)' % c for c in conditions ])
 
 # Read words from file
-df = pd.read_csv('diccionario.txt', dtype='str')
+df = pd.read_csv('keywords.csv', dtype='str')
 
 # New Column: Change 'b' to 'v'
 df['b'] = df[df['a'].str.contains(rgx_str)]['a'].str.replace(char, char2)
