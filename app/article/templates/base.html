@@ -1,0 +1,76 @@
+{% load static %}
+{% load solo_tags %}
+{% get_solo 'config.SiteConfig' as site_config %}
+{% get_solo 'config.AdsConfig' as ads_config %}
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+
+    {% block seo_header %}
+    {% endblock %}
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static "article/css/main.css" %}" />
+    <link rel="icon" type="image/vnd.microsoft.icon" href="{% static "article/img/favicon.ico" %}">
+
+    {% if site_config.analytics_id %}
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id={{ site_config.analytics_id }}"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', '{{ site_config.analytics_id }}');
+        </script>
+     {% endif %}
+  </head>
+
+  <body>
+    <!-- HEADER-->
+   {% include "includes/header.html" %}
+
+    <!-- CONTENT-->
+    <div class="container">
+    {% if ads_config.active_ads %}
+      <div class="row">
+        <div class="col-12">
+          <div class="card mt-2">
+            <div class="card-body">
+              {{ ads_config.ads_header }}
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+      <div class="row mt-2">
+        <div class="col-lg-8">
+            {% block content %}
+            {% endblock %}
+
+          {% if ads_config.ad_footer %}
+          <div class="card my-2">
+            <div class="card-body">
+                {{ ads_config.ad_footer }}
+            </div>
+          </div>
+          {% endif %}
+        </div>
+        <div class="col-lg-4">
+            {% include "includes/side-bar.html" %}
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER-->
+
+    {% include "includes/footer.html" %}
+    <div id="WAButton" ></div>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <!-- <script src="{% static "article/js/scripts.js" %}"></script> -->
+  </body>
+</html>

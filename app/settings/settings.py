@@ -107,7 +107,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
-LANGUAGE_CODE = 'en'
+LANGUAGE_CODE = 'es'
 
 TIME_ZONE = 'Europe/Madrid'
 
@@ -124,9 +124,12 @@ LOCALE_PATHS = [
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 PROJECT_ROOT = BASE_DIR
-STATIC_URL = os.path.join(BASE_DIR, "static/")
+STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
 CKEDITOR_BASEPATH = STATIC_ROOT + '/ckeditor/ckeditor/'
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
+
+# Populate fixtures first `$ python manage.py loaddata fixtures/*.json
+SITE_ID = 2

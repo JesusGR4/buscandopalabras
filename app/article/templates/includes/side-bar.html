@@ -1,0 +1,23 @@
+{% load solo_tags %}
+{% get_solo 'config.AdsConfig' as ads_config %}
+
+        {% block widget_provinces %}
+          <div class="card mb-3">
+            <div class="card-body">
+              <h5>Palabras más buscadas</h5>
+              <ul class="list-unstyled">
+              {% for article in top_articles %}
+                <li><a href="/palabra/{{ article.slug }}">{{ article.title }}</a></li>
+              {% endfor %}
+              </ul>
+            </div>
+          </div>
+        {% endblock %}
+
+          {% if ads_config.ad_sidebar %}
+          <div class="card mb-3">
+            <div class="card-body">
+              {{ ads_config.ad_sidebar }}
+            </div>
+          </div>
+          {% endif %}

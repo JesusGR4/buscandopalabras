@@ -1,0 +1,12 @@
+{% load site %}
+{% load menu %}
+{% footer_menu as items %}
+    <footer>
+      <div class="copyright">
+          <span>Copyright &copy; 2020 {% current_domain %}
+            {% for item in items %}
+                | <a href="{{item.href}}" rel="nofollow" >{{ item.name }}</a>
+              {% endfor %}
+          </span>
+      </div>
+    </footer>
