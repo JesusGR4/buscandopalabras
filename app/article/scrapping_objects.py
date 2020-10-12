@@ -64,14 +64,16 @@ class Rae(object):
             soup = BeautifulSoup(content, 'lxml')
             p_set = soup.find("div", {"id": "resultados"}).findAll('p', {"id": True})
             if p_set:
-                cleanr = re.compile('<.*?>')
-                definitions = []
-                for p in p_set:
-                    prettify = p.prettify()
-                    cleantext = re.sub(cleanr, '', prettify)
-                    cleantext = cleantext.replace('\n', '')
-                    cleantext = cleantext.strip()
-                    definitions.append(" ".join(cleantext.split()))
-                result = definitions
+                articles = soup.find("div", {"id": "resultados"}).findAll('article', {"id": True})
+                for article in articles:
+                    cleanr = re.compile('<.*?>')
+                    definitions = []
+                    for p in article.findAll('p', {"id": True}):
+                        prettify = p.prettify()
+                        cleantext = re.sub(cleanr, '', prettify)
+                        cleantext = cleantext.replace('\n', '')
+                        cleantext = cleantext.strip()
+                        definitions.append(" ".join(cleantext.split()))
+                    result.append(definitions)
 
         return result
