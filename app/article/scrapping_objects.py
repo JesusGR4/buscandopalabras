@@ -11,6 +11,7 @@ class WordReference(object):
         word_encoded = parse.quote(word)
         synonymous = ""
         url = self.synonymous_url + "%s" % word_encoded
+        print(url)
         req = request.Request(url=url, headers={
             'User-Agent': ' Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0'})
         handler = request.urlopen(req)
@@ -56,16 +57,12 @@ class Rae(object):
             'User-Agent': ' Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0'})
         handler = request.urlopen(req)
         http_code = handler.code
-        if not http_code == 200:
-            result = ''
-        else:
+        result = []
+        if http_code == 200:
             content = handler.read()
             soup = BeautifulSoup(content, 'lxml')
             p_set = soup.find("div", {"id": "resultados"}).findAll('p', {"id": True})
-            if not p_set:
-                # Significa que no tiene resultados, por lo que no devolvemos nada
-                result = ''
-            else:
+            if p_set:
                 cleanr = re.compile('<.*?>')
                 definitions = []
                 for p in p_set:
@@ -74,6 +71,6 @@ class Rae(object):
                     cleantext = cleantext.replace('\n', '')
                     cleantext = cleantext.strip()
                     definitions.append(" ".join(cleantext.split()))
-                result = '\n'.join(definitions)
+                result = definitions
 
         return result

@@ -6,6 +6,39 @@ from django.db import models
 from django.template.defaultfilters import slugify
 from django.utils.translation import gettext as _
 from ckeditor.fields import RichTextField
+import re
+from django.template.loader import render_to_string
+from article.scrapping_objects import Rae, WordReference, Translation
+
+from article.scrapping_objects import WordReference
+
+B_O_V = 'b o v'
+C_O_S = 'c o s'
+H_O_SIN_HACHE = 'h o sin hache'
+LL_O_Y = 'll o y'
+G_O_J = 'g o j'
+A_O_A_CON_ACENTO = 'a o á'
+E_O_E_CON_ACENTO = 'e o é'
+I_O_I_CON_ACENTO = 'i o í'
+O_O_O_CON_ACENTO = 'o o ó'
+U_O_U_CON_ACENTO = 'u o ú'
+S_O_X = 's o x'
+S_O_Z = 's o z'
+
+conditions = {
+    B_O_V: '[vb]{2}',
+    H_O_SIN_HACHE: '[h]',
+    LL_O_Y: '[ly]{2}',
+    C_O_S: '[cs]{2}',
+    G_O_J: '[gj]{2}',
+    S_O_X: '[sx]{2}',
+    S_O_Z: '[sz]{2}',
+    A_O_A_CON_ACENTO: '[aá]{2}',
+    E_O_E_CON_ACENTO: '[eé]{2}',
+    I_O_I_CON_ACENTO: '[ií]{2}',
+    O_O_O_CON_ACENTO: '[oó]{2}',
+    U_O_U_CON_ACENTO: '[uú]{2}',
+}
 
 
 class SEOAttributes(models.Model):
@@ -109,6 +142,23 @@ class Article(SEOAttributes, UserBy, DatesAt):
                                       help_text=_('Para referenciar su enlace dentro de otros artículos'))
     is_reviewed = models.BooleanField(default=False, verbose_name=_('Relevante'),
                                       help_text=_('Para referenciar su enlace dentro de otros artículos'))
+    keywords = models.CharField(max_length=100, null=True, blank=True,
+                                verbose_name=_('Keywords únicos en el sistema del artículo'))
+
+    joined_chars = None
+    splitted_keywords = None
+    rule = None
+
+    def generate_title(self):
+        return "¿%s?" % self.keywords
+
+    def generate_meta_title(self):
+        return "Buscando la palabra correcta: ¿%s?, ¿con %s? " % (
+            self.keywords, self.joined_chars)
+
+    def generate_meta_description(self):
+        return "¿Estás buscando la palabra correcta entre %s? ¿No sabes si se escribe con %s?. En castellano es una duda más que ..." % (
+            self.keywords, self.joined_chars)
 
     def main_category(self):
         return self.tags.filter(is_category=True).first()
@@ -120,11 +170,94 @@ class Article(SEOAttributes, UserBy, DatesAt):
         verbose_name = _('Articulo')
         verbose_name_plural = _('Articulos')
 
+    @staticmethod
+    def keywords_exists(keywords):
+        splitted_keywords = Article.split_keywords(keywords)
+        regex = r"({0}|{1}) [yo] ({0}|{1})".format(splitted_keywords[0].strip(), splitted_keywords[1].strip())
+        return Article.objects.filter(
+            keywords__iregex=regex).exists()
+
+    @staticmethod
+    def split_keywords(keywords):
+        return [str.lower() for str in re.compile(' [yo] ').split(keywords)]
+
+    @staticmethod
+    def get_diff_in_keywords(keywords):
+        array_a = list(keywords[0])
+        array_b = list(keywords[1])
+        t = [(a, b) for a, b in zip(array_a, array_b) if a != b]
+        if not t:
+            raise Exception("Las keywords %s no tienen diferencias" % keywords)
+        return t[0]
+
+    def get_rule(self):
+        result = ''
+        joined_tuple_chars = ''.join(self.tuple_chars)
+        for key in conditions:
+            expression = conditions[key]
+            if re.search(expression, joined_tuple_chars):
+                result = key
+                self.rule = conditions[key]
+        return result
+
+    def generate_slug(self):
+        # Siendo keywords p.e.: Movil o mobil y differences_chars una tuple de las diferencias, en este caso ('b', 'v')
+        conditions_with_accents = [A_O_A_CON_ACENTO, E_O_E_CON_ACENTO, I_O_I_CON_ACENTO, O_O_O_CON_ACENTO,
+                                   U_O_U_CON_ACENTO]
+        rule = self.get_rule()
+        result = slugify(self.keywords)
+        if rule in conditions_with_accents:
+            result += '-con-acento'
+        else:
+            raise Exception("rule no encontrada")
+        return result
+
+    def generate_chars(self):
+        strs_to_split = [" o ", " y "]
+        for str_to_split in strs_to_split:
+            keywords_splitted = [str.lower() for str in self.keywords.split(str_to_split)]
+            if not len(keywords_splitted) > 1:
+                continue
+            tuple_chars = self.get_diff_in_keywords(keywords_splitted)
+            self.tuple_chars = tuple_chars
+            self.joined_chars = str_to_split.join(tuple_chars)
+            self.splitted_keywords = keywords_splitted
+            break
+
+    def generate_content(self):
+        html = ''
+        for keyword in self.splitted_keywords:
+            rae_content = Rae().get_word_definition(keyword)
+            if rae_content:  # La palabra existe
+                synonymous_content = WordReference().get_synonymous(keyword)
+                translations = Translation().get_translations_from_word(keyword)
+                context = {'title': self.title,
+                           'description': self.description_seo,
+                           'rae_definition': rae_content,
+                           'synonymous': synonymous_content,
+                           'translations': translations}
+                html += render_to_string('article_content.html', context)
+        return html
+
+    def generate_tag(self):
+        tag = Tag.object.get_or_create(
+            name=self.rule
+        )
+        self.tags.add(tag)
+
     def save(self, *args, **kwargs):
-        if not self.id:
-            # Only set the slug when the object is created.
-            self.slug = slugify(self.title + " " + str(time.time()).split('.')[0])
-        super(Article, self).save(*args, **kwargs)
+        if not self.keywords_exists(self.keywords):
+            if not self.pk:
+                self.generate_chars()
+                self.title = self.generate_title()
+                self.title_seo = self.generate_meta_title()
+                self.description_seo = self.generate_meta_description()
+                self.slug = self.generate_slug()
+                self.content = self.generate_content()
+                self.generate_tag()
+            super(Article, self).save(*args, **kwargs)
+        else:
+            raise Exception("La keyword %s ya existe en DB" % self.keywords)
 
 
 class MenuItem(models.Model):

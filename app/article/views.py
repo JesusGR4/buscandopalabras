@@ -17,10 +17,10 @@ def home_view(request):
     articles = paginator.get_page(page_num)
 
     return render(request, 'home.html', {'articles': articles, 'paginator': paginator,
-                                         'top_articles': top_articles, 'tags': tags })
+                                         'top_articles': top_articles, 'tags': tags})
 
 
-def article_view(request):
+def article_view(request, slug):
     pass
 
 

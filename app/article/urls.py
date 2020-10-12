@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import path
 from article.views import home_view, article_view, page_view
 
 urlpatterns = [
