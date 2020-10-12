@@ -83,6 +83,10 @@ DATABASES = {
         'PASSWORD': os.getenv('MYSQL_ROOT_PASSWORD'),
         'HOST': os.getenv('MYSQL_HOST'),
         'PORT': os.getenv('MYSQL_PORT') if os.getenv('MYSQL_PORT') else '3306',
+        'OPTIONS': {
+            'charset': 'utf8',
+            'use_unicode': True,
+        }
     }
 }
 
@@ -127,7 +131,8 @@ PROJECT_ROOT = BASE_DIR
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
-CKEDITOR_BASEPATH = STATIC_ROOT + '/ckeditor/ckeditor/'
+CKEDITOR_BASEPATH = "/static/ckeditor/ckeditor/"
+
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
 

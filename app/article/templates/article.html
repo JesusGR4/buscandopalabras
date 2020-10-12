@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block seo_header %}
+    <title>{{ article.title_seo|default:article.title  }}</title>
+    <meta name="robots" content="{{ article.robots_seo|default:"index,follow" }}">
+    {% if article.description_seo %} <meta name="description" content="{{ article.description_seo }}" />{% endif %}
+    {% if article.keywords %} <meta name="keywords" content="{{ article.keywords_seo }}" />{% endif %}
+{% endblock %}
+
+{% block content %}
+          <div>
+            <h1>{{ article.title }}</h1>
+          </div>
+          <div id="article" class="card mb-2">
+            <div class="card-body">
+                {{ article.content|safe  }}
+            </div>
+          </div>
+{% endblock %}

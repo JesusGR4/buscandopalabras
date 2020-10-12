@@ -9,9 +9,9 @@ class WordReference(object):
 
     def get_synonymous(self, word):
         word_encoded = parse.quote(word)
-        synonymous = ""
+        synonymous = ''
         url = self.synonymous_url + "%s" % word_encoded
-        print(url)
+        # print(url)
         req = request.Request(url=url, headers={
             'User-Agent': ' Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0'})
         handler = request.urlopen(req)
@@ -36,15 +36,16 @@ class Translation(object):
     def get_translations_from_word(self, word):
         translator = Translator(service_urls=[
             'translate.google.es'])
-        translation_array = []
+        translation_dict = {}
 
         for language_code in self.languages:
             language_value = self.languages.get(language_code)
             translation = translator.translate(word, src='es', dest=language_code)
             translate_text = translation.text
-            translation_array.append("La palabra %s se escribe en %s -> %s" % (word, language_value, translate_text))
+            translation_dict[language_value] = translate_text
+            # print("La palabra %s se escribe en %s -> %s" % (word, language_value, translate_text))
 
-        return '\n'.join(translation_array)
+        return translation_dict
 
 
 class Rae(object):

@@ -133,15 +133,15 @@ class Page(SEOAttributes, UserBy, DatesAt):
 class Article(SEOAttributes, UserBy, DatesAt):
     """ Representan los artículos sobre palabras en la web
     """
-    title = models.CharField(max_length=100, verbose_name=_('Titulo'))
-    content = RichTextField(max_length=9999, verbose_name=_('Contenido'))
+    title = models.CharField(max_length=100, verbose_name=_('Titulo'), null=True, blank=True)
+    content = RichTextField(max_length=99999, verbose_name=_('Contenido'), null=True, blank=True)
     tags = models.ManyToManyField(Tag)
     published = models.BooleanField(default=False, verbose_name=_('Publicada'),
                                     help_text=_('Para hacerla visible públicamente'))
     is_relevant = models.BooleanField(default=False, verbose_name=_('Relevante'),
                                       help_text=_('Para referenciar su enlace dentro de otros artículos'))
-    is_reviewed = models.BooleanField(default=False, verbose_name=_('Relevante'),
-                                      help_text=_('Para referenciar su enlace dentro de otros artículos'))
+    is_reviewed = models.BooleanField(default=False, verbose_name=_('Revisada'),
+                                      help_text=_('Para confirmar su revisión manual'))
     keywords = models.CharField(max_length=100, null=True, blank=True,
                                 verbose_name=_('Keywords únicos en el sistema del artículo'))
 
@@ -196,9 +196,8 @@ class Article(SEOAttributes, UserBy, DatesAt):
         for key in conditions:
             expression = conditions[key]
             if re.search(expression, joined_tuple_chars):
-                result = key
-                self.rule = conditions[key]
-        return result
+                self.rule = key
+        return self.rule
 
     def generate_slug(self):
         # Siendo keywords p.e.: Movil o mobil y differences_chars una tuple de las diferencias, en este caso ('b', 'v')
@@ -208,8 +207,6 @@ class Article(SEOAttributes, UserBy, DatesAt):
         result = slugify(self.keywords)
         if rule in conditions_with_accents:
             result += '-con-acento'
-        else:
-            raise Exception("rule no encontrada")
         return result
 
     def generate_chars(self):
@@ -225,40 +222,52 @@ class Article(SEOAttributes, UserBy, DatesAt):
             break
 
     def generate_content(self):
-        html = ''
+        definitions = []
+        synonymous = []
+        translations = []
+
         for keyword in self.splitted_keywords:
             rae_content = Rae().get_word_definition(keyword)
+            definitions.append(rae_content)
+
             if rae_content:  # La palabra existe
-                synonymous_content = WordReference().get_synonymous(keyword)
-                translations = Translation().get_translations_from_word(keyword)
-                context = {'title': self.title,
-                           'description': self.description_seo,
-                           'rae_definition': rae_content,
-                           'synonymous': synonymous_content,
-                           'translations': translations}
-                html += render_to_string('article_content.html', context)
+                synonymous.append(WordReference().get_synonymous(keyword))
+                translations.append(Translation().get_translations_from_word(keyword))
+            else:
+                synonymous.append(None)
+                translations.append(None)
+        # Generate context...
+        context = {
+           'keywords': self.splitted_keywords,
+           'rule': self.rule,
+           'definitions': definitions,
+           'synonymous': synonymous,
+           'translations': translations
+        }
+        html = render_to_string('article_content.html', context)
         return html
 
     def generate_tag(self):
-        tag = Tag.object.get_or_create(
-            name=self.rule
+        tag, created = Tag.objects.get_or_create(
+            name=self.rule, is_category=True
         )
         self.tags.add(tag)
 
     def save(self, *args, **kwargs):
-        if not self.keywords_exists(self.keywords):
-            if not self.pk:
+        if not self.pk:
+            if not self.keywords_exists(self.keywords):
                 self.generate_chars()
                 self.title = self.generate_title()
                 self.title_seo = self.generate_meta_title()
                 self.description_seo = self.generate_meta_description()
                 self.slug = self.generate_slug()
                 self.content = self.generate_content()
+                super(Article, self).save(*args, **kwargs)
                 self.generate_tag()
-            super(Article, self).save(*args, **kwargs)
+            else:
+                raise Exception("La keyword %s ya existe en DB" % self.keywords)
         else:
-            raise Exception("La keyword %s ya existe en DB" % self.keywords)
-
+            super(Article, self).save(*args, **kwargs)
 
 class MenuItem(models.Model):
     """ Representa los links a mostrar en el menu

@@ -1,8 +1,70 @@
-<h1>{{ title }}</h1>
-<p>{{ description }}</p>
-<h2>Rae definition</h2>
-<p>{{ rae_definition }}</p>
-<h2>Synonymous</h2>
-<p>{{ synonymous }}</p>
-<h3>Translation</h3>
-<p>{{ translations }}</p>
+<p><b>{{ keywords.0 }} o {{ keywords.1 }}</b> son palabras fáciles de confundir en su forma con {{ rule }}. Las palabras que suenan de forma similar suelen
+    resultar confusas para una gran parte de la población que hipanohablante. Si quieres conocer cual es la correcta sigue leyendo, ¿{{ keywords.1 }} o {{ keywords.0 }}?</p>
+
+<h2>Definiciones por la RAE</h2>
+<p>Para comprender mejor si se escribe {{ keywords.0 }} o {{ keywords.1 }} vamos a consultar primero su definición en el diccionario de la Real Academia Española.</p>
+
+<h3>Definición {{ keywords.0 }}</h3>
+{% if definitions.0 %}
+    <p><b>{{ keywords.0 }}</b> puede tener los siguientes significados:</p>
+    <ul>{% for li in definitions.0 %}
+        <li>{{ li }}</li>{% endfor %}
+    </ul>
+    <p>Puedes consultar más información en la fuente oficial <a href="https://dle.rae.es/{{ keywords.0 }}" rel="nofollow" target="_blank">aquí.</a></p>
+{% else %}
+    <p>No existe una definición para {{ keywords.0 }} en la RAE.</p>
+{% endif %}
+
+<h3>Definición {{ keywords.1 }}</h3>
+{% if definitions.1 %}
+    <p><b>{{ keywords.1 }}</b> puede tener los siguientes significados:</p>
+    <ul>{% for li in definitions.1 %}
+        <li>{{ li }}</li>{% endfor %}
+    </ul>
+    <p>Puedes consultar más información en la fuente oficial <a href="https://dle.rae.es/{{ keywords.1 }}" rel="nofollow" target="_blank">aquí.</a></p>
+{% else %}
+    <p>No existe una definición para {{ keywords.1 }} en la RAE.</p>
+{% endif %}
+
+<h2>Sinónimos de {{ keywords.0  }} y {{ keywords.1 }}</h2>
+<h3>Sinónimos de {{ keywords.0  }}</h3>
+<p>Entre los sinónimos de {{keywords.0 }}: {{ synonymous.0|default:"No tiene sinónimos"  }}.</p>
+
+<h3>Sinónimos de {{keywords.1}}</h3>
+<p>Entre los sinónimos de {{keywords.1}}: {{ synonymous.1|default:"No tiene sinónimos" }}.</p>
+
+<h2>Traducciones más comunes de {{ keywords.0  }} y {{ keywords.1 }}</h2>
+<p>En este apartado conocerás algunas traducciones de estas palabras en los idiomas más comunes.</p>
+
+<h3>{{ keywords.0  }} en otros idiomas</h3>
+{% if translations.0 %}
+    <p>{{ keywords.0 }} tiene algunas traducciones que citaremos a continuación.</p>
+
+    <ul>{% for key, value in translations.0.items %}
+      <li>{{ keywords.0  }} en {{ key }}: {{value}}</li>{% endfor %}
+    </ul>
+{% else %}
+    <p>{{ keywords.0  }} no tiene traducciones.</p>
+{% endif %}
+<h3>{{ keywords.1 }} en otros idiomas</h3>
+{% if translations.1 %}
+    <p>{{ keywords.1 }} tiene algunas traducciones que citaremos a continuación.</p>
+    <ul>{% for key, value in translations.1.items %}
+      <li>{{ keywords.1 }} en {{ key }}: {{value}}</li>{% endfor %}
+    </ul>
+{% else %}
+    <p>{{ keywords.1 }} no tiene traducciones.</p>
+{% endif %}
+
+<h2>Entonces, ¿{{keywords.1}} o {{ keywords.0 }}?</h2>
+{% if definitions.0 and not definitions.1  %}
+<p>La palabra correcta es <b>{{ keywords.0 }}</b>.</p>
+{% endif %}
+
+{% if not definitions.0 and definitions.1 %}
+<p>La palabra correcta es <b>{{ keywords.1 }}</b>.</p>
+{% endif %}
+
+{% if definitions.0 and definitions.1 %}
+<p>Como has visto, tanto <b>{{ keywords.0 }} como {{ keywords.1 }} son correctas</b>, dependiendo del contexto.</p>
+{% endif %}
