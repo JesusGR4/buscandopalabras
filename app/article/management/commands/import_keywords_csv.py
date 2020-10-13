@@ -6,7 +6,6 @@ from article.models import Article
 import time
 from random import randrange
 import traceback
-
 class Command(BaseCommand):
     def handle(self, **options):
         df = pd.read_csv('keywords.csv', dtype='str')

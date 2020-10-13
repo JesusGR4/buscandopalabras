@@ -196,8 +196,8 @@ class Article(SEOAttributes, UserBy, DatesAt):
         for key in conditions:
             expression = conditions[key]
             if re.search(expression, joined_tuple_chars):
-                self.rule = key
-        return self.rule
+                self.rule = result = key
+        return result
 
     def generate_slug(self):
         # Siendo keywords p.e.: Movil o mobil y differences_chars una tuple de las diferencias, en este caso ('b', 'v')
