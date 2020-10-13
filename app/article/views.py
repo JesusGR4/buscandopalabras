@@ -22,7 +22,7 @@ def home_view(request):
 
 def article_view(request, slug):
     article = Article.objects.get(slug=slug)
-    top_articles = Article.objects.filter(is_relevant=True)
+    top_articles = Article.objects.filter(is_relevant=True).exclude(pk=article.pk)
     tags = Tag.objects.filter(is_category=True).order_by('name')
     return render(request, 'article.html', {'article': article, 'top_articles': top_articles, 'tags': tags})
 
