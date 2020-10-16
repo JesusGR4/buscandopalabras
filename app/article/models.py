@@ -136,6 +136,7 @@ class Article(SEOAttributes, UserBy, DatesAt):
     title = models.CharField(max_length=100, verbose_name=_('Titulo'), null=True, blank=True)
     content = RichTextField(max_length=99999, verbose_name=_('Contenido'), null=True, blank=True)
     tags = models.ManyToManyField(Tag)
+    order = models.PositiveIntegerField(default=0)
     published = models.BooleanField(default=False, verbose_name=_('Publicada'),
                                     help_text=_('Para hacerla visible públicamente'))
     is_relevant = models.BooleanField(default=False, verbose_name=_('Relevante'),

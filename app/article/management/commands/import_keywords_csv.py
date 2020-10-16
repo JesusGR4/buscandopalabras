@@ -8,12 +8,14 @@ from random import randrange
 import traceback
 class Command(BaseCommand):
     def handle(self, **options):
-        df = pd.read_csv('keywords.csv', dtype='str')
+        df = pd.read_csv('kw.csv', dtype='str')
         kw_errors = []
-        for keywords in df['Keyword']:
+        for i, k in df.iterrows():
+            keywords = k.get('Keyword')
+            order = k.get('Order')
             print("INFO: Ejecutando las keywords *%s*" % keywords)
             try:
-                self.init_process(keywords)
+                self.init_process(keywords, order)
             except Exception as e:
                 print(f'ERROR: La key *{keywords}* ha petao')
                 # traceback.print_exc()
@@ -25,10 +27,11 @@ class Command(BaseCommand):
         # Save errors in csv
         numpy.savetxt("kw_errors.csv", kw_errors, delimiter=",", fmt="%s")
 
-    def init_process(self, keywords):
+    def init_process(self, keywords, order):
         if not Article.keywords_exists(keywords):
             article = Article()
             article.keywords = keywords
+            article.order = order
             article.save()
         else:
             print(f"WARNING: *{keywords}* ya existe!")
