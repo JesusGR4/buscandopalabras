@@ -21,6 +21,8 @@ def home_view(request):
 
 
 def article_view(request, slug):
+    """ Get article and show it
+     """
     article = Article.objects.get(slug=slug)
     top_articles = Article.objects.filter(is_relevant=True).exclude(pk=article.pk)
     tags = Tag.objects.filter(is_category=True).order_by('name')
@@ -28,4 +30,15 @@ def article_view(request, slug):
 
 
 def page_view(request):
-    pass
+    """ Get page and show it
+    """
+    if not Page.objects.filter(published=True, slug=slug).exists():
+        # Show 404 page if slug does not exists!
+        return HttpResponseNotFound('<h1>Not found</h1>')
+
+    top_articles = Article.objects.filter(is_relevant=True).exclude(pk=article.pk)
+    tags = Tag.objects.filter(is_category=True).order_by('name')
+
+    page = Page.objects.get(slug=slug)
+
+    return render(request, 'page.html', {'page': page, 'top_articles': top_articles, 'tags': tags})
