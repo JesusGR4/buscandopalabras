@@ -36,7 +36,7 @@ def page_view(request):
         # Show 404 page if slug does not exists!
         return HttpResponseNotFound('<h1>Not found</h1>')
 
-    top_articles = Article.objects.filter(is_relevant=True).exclude(pk=article.pk)
+    top_articles = Article.objects.filter(is_relevant=True)
     tags = Tag.objects.filter(is_category=True).order_by('name')
 
     page = Page.objects.get(slug=slug)

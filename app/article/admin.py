@@ -6,7 +6,7 @@ from . import models
 class ArticleAdmin(admin.ModelAdmin):
     """ Permite gestionar los artículos de la web
     """
-    list_display = ('title', 'slug', 'published', 'is_reviewed')
+    list_display = ('title', 'slug', 'published', 'is_reviewed', 'order')
 
 
 admin.site.register(models.Tag)
