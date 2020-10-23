@@ -1,7 +1,8 @@
+from django.http import HttpResponseNotFound
 from django.shortcuts import render
 from django.core.paginator import Paginator
 from config.models import SiteConfig
-from .models import Article, Tag
+from .models import Article, Tag, Page
 
 
 def home_view(request):
@@ -29,7 +30,7 @@ def article_view(request, slug):
     return render(request, 'article.html', {'article': article, 'top_articles': top_articles, 'tags': tags})
 
 
-def page_view(request):
+def page_view(request, slug):
     """ Get page and show it
     """
     if not Page.objects.filter(published=True, slug=slug).exists():
