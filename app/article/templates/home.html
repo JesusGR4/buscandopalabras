@@ -5,10 +5,17 @@
 {% get_solo 'config.SiteConfig' as site_config %}
 
 {% block seo_header %}
-    <title>{{ site_config.title_seo|default:"Home"}}</title>
-    <meta name="robots" content="{{ site_config.robots_seo|default:"index,follow" }}">
-    {% if site_config.description_seo %} <meta name="description" content="{{ site_config.description_seo }}" />{% endif %}
-    {% if site_config.keywords %} <meta name="keywords" content="{{ site_config.keywords_seo }}" />{% endif %}
+    {% if page %}
+        <title>{{ page.title_seo|default_if_none:page.title}}</title>
+        <meta name="robots" content="{{ page.robots_seo|default:'index,follow' }}">
+        <meta name="description" content="{{ page.description_seo|default:site_config.description_seo }}" />
+        <meta name="keywords" content="{{ page.keywords_seo|default:site_config.description_seo }}" />
+    {% else %}
+        <title>{{ site_config.title_seo|default:'Home' }}</title>
+        <meta name="robots" content="{{ page.robots_seo|default:'index,follow' }}">
+        <meta name="description" content="{{ page.description_seo|default:'' }}" />
+        <meta name="keywords" content="{{ page.keywords_seo|default:'' }}" />
+    {% endif %}
 
     {% if articles.has_previous %}
         {% if articles.number == 2 %}
@@ -30,7 +37,7 @@
 {% block content %}
           <div class="row">
             <div class="col-12">
-                <h1 class="title">Últimas entradas</h1>
+                <h1 class="title">{{ page.title|default_if_none:'Últimas entradas'}}</h1>
                 <p>{{ page.content|safe  }}</p>
             </div>
           </div>
@@ -46,8 +53,8 @@
 
                 <div id="article-{{ article.id }}" class="card mb-2">
                 <div class="card-body">
-                    <h5 class="card-title"><a href="/palabra/{{ article.slug }}" title="{{ article.title }}" rel="bookmark">{{ article.title }}</a></h5>
-                    <p class="card-text">{{ article.content|striptags|safe|truncatewords:15 }}</p> <a href="/palabra/{{ article.slug }}">Leer</a>
+                    <h5 class="card-title"><a href="/palabra/{{ article.main_category.slug }}/{{ article.slug }}" title="{{ article.title }}" rel="bookmark">{{ article.title }}</a></h5>
+                    <p class="card-text">{{ article.content|striptags|safe|truncatewords:15 }}</p> <a href="/palabra/{{ article.main_category.slug }}/{{ article.slug }}">Leer</a>
                 </div>
               </div>
               {% endfor %}

@@ -7,7 +7,7 @@
               <h5>Palabras más buscadas</h5>
               <ul class="list-unstyled">
               {% for article in top_articles %}
-                <li><a href="/palabra/{{ article.slug }}">{{ article.title }}</a></li>
+                <li><a href="/palabra/{{ article.main_category.slug }}/{{ article.slug }}">{{ article.title }}</a></li>
               {% endfor %}
               </ul>
             </div>

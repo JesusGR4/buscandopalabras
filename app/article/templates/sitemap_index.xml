@@ -1,0 +1,37 @@
+{% spaceless %}
+{% load site %}
+<?xml version='1.0' encoding='UTF-8'?>
+
+<sitemapindex xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+
+         xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/siteindex.xsd"
+
+         xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+   <sitemap>
+
+      <loc>https://{% current_domain %}/sitemap_pages.xml</loc>
+
+      <lastmod>{{ last_updated_date_pages|date:"c"}}</lastmod>
+
+   </sitemap>
+
+
+    <sitemap>
+
+      <loc>https://{% current_domain %}/sitemap_articles.xml</loc>
+
+      <lastmod>{{ last_updated_date_articles|date:"c"}}</lastmod>
+
+   </sitemap>
+
+    <sitemap>
+
+      <loc>https://{% current_domain %}/sitemap_categories.xml</loc>
+
+      <lastmod>{{ last_updated_date_categories|date:"c"}}</lastmod>
+
+   </sitemap>
+
+</sitemapindex>
+{% endspaceless %}
