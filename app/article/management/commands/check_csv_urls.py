@@ -18,17 +18,21 @@ class Command(BaseCommand):
         df = pd.read_csv(csv_file, dtype='str')
         url_errors = []
         for i, k in df.iterrows():
-            url = k.get('url')
-            req = request.Request(url=url, headers={
-                'User-Agent': ' Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0'})
-            handler = request.urlopen(req)
-            http_code = handler.code
-            if http_code == 200:
-                content = handler.read()
-                soup = BeautifulSoup(content, 'lxml')
-                hrefs = soup.find_all('a', {'href': re.compile(href_regex)})
-                if not hrefs:
-                    url_errors.append(url)
+            url = k.get('urls')
+            try:
+                req = request.Request(url=url, headers={
+                    'User-Agent': ' Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0'})
+                handler = request.urlopen(req)
+                http_code = handler.code
+                if http_code == 200:
+                    content = handler.read()
+                    soup = BeautifulSoup(content, 'lxml')
+                    hrefs = soup.find_all('a', {'href': re.compile(href_regex)})
+                    if not hrefs:
+                        url_errors.append(url)
+            except Exception as e:
+                url_errors.append(url)
+                continue
 
         # Save errors in csv
         numpy.savetxt("urls_not_found.csv", url_errors, delimiter=",", fmt="%s")
