@@ -14,7 +14,7 @@ class Command(BaseCommand):
     def handle(self, **options):
 
         csv_file = options['csv_file']
-        href_regex = options['href_regex']
+        href_regex = r'%s' % options['href_regex']
         df = pd.read_csv(csv_file, dtype='str')
         url_errors = []
         for i, k in df.iterrows():
