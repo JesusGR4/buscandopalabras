@@ -9,7 +9,7 @@ from .models import Article, Tag, Page
 
 def home_view(request):
     page = Page.objects.filter(published=True, slug='home').first()
-    articles_list = Article.objects.filter(published=True).order_by('-id')
+    articles_list = Article.objects.filter(published=True).order_by('-updated_at')
     top_articles = Article.objects.filter(is_relevant=True)
     tags = Tag.objects.filter(is_category=True).order_by('name')
 
