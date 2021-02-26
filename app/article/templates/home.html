@@ -53,7 +53,9 @@
 
                 <div id="article-{{ article.id }}" class="card mb-2">
                 <div class="card-body">
+                    <span style="color: gray;font-size: 9pt;display: inline-block;">{{article.updated_at|date:"d/m/Y"}}</span>
                     <h5 class="card-title"><a href="/palabra/{{ article.main_category.slug }}/{{ article.slug }}" title="{{ article.title }}" rel="bookmark">{{ article.title }}</a></h5>
+                    <span></span>
                     <p class="card-text">{{ article.content|striptags|safe|truncatewords:15 }}</p> <a href="/palabra/{{ article.main_category.slug }}/{{ article.slug }}">Leer</a>
                 </div>
               </div>
